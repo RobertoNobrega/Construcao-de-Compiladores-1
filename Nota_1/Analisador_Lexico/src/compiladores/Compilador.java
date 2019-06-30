@@ -38,7 +38,7 @@ public class Compilador {
         try{
             arquivoEntrada = new FileReader(new File(caminho));
             arquivoLeitura = new BufferedReader(arquivoEntrada);
-            flag1 = true;
+            flag1 = true;   // Arquivo já está referenciado. Já pode ler/escrever nele.
             lista_palavras_chaves.add("program");
             lista_palavras_chaves.add("var");
             lista_palavras_chaves.add("integer");
@@ -69,7 +69,7 @@ public class Compilador {
            while((linha_arquivo = arquivoLeitura.readLine()) != null){  // Lendo uma linha por inteiro do arquivo.
                //++numero_linha;
                for(char caractere : linha_arquivo.toCharArray())
-                   buffer.add(caractere);
+                   buffer.add(caractere); // Adicionando no buffer, cada componente fundamental da String.
                
            }
         }catch(IOException ex2){
