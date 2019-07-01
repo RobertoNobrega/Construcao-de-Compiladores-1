@@ -32,6 +32,7 @@ public class Compilador {
     private FileWriter arquivoSaida;
     private BufferedWriter arquivoEscrita;
     private boolean flag1;
+    private boolean abreComentario, fechaComentario;
     private String estado;
     private int numero_linha;
     //private FileOutputStream arquivoOt;
@@ -45,27 +46,69 @@ public class Compilador {
         try{
             arquivoEntrada = new FileReader(new File(caminho1));
             arquivoLeitura = new BufferedReader(arquivoEntrada);
+            File arq = new File(caminho2);
+            if(arq.exists())
+                arq.delete();  // Apagando o arquivo da Tabela, pois a Tabela será reescrita (Será Atualizada).
             arquivoSaida = new FileWriter(caminho2,true);
             arquivoEscrita = new BufferedWriter(arquivoSaida);
             arquivoEscrita.write("Token               Classificação               Linha");  // Escrevendo no arquivo, esta String.
             arquivoEscrita.newLine();  // Quebra de Linha no Arquivo de Escrita.
             arquivoEscrita.flush(); // Precisa deste comando, para poder "autorizar" a escrita no arquivo.
             flag1 = true;   // Arquivo já está referenciado. Já pode ler/escrever nele.
+            abreComentario = false;
+            fechaComentario = false;
             estado = "";    // Por enquanto, o estado ainda não foi definido.
             numero_linha = 0;
         }catch(FileNotFoundException ex1){
-            System.out.print("\n\tErro 1 . Arquivo Não Localizado.");
+            System.out.print("\n\tErro 1 . Arquivo Não Localizado." + ex1);
         }catch(IOException ex2){  // Caso ocorra algum problema na parte de escrita do arquivo.
-            
+            System.out.print("\n\t\tProblema ex2 >> " + ex2);
         }
     }
     
-    public String consulta(String token){
-        for(int i = 0; i < lista_palavras_chaves.length; ++i){   // Verificando se o token é uma palavra-chave da Linguagem Pascal.
-            if(token.equals(lista_palavras_chaves[i]))
-                return "Palavra-Chave";
+    public String consultarToken(String token){
+        if(token.matches("\\d+"))
+            return "Número Inteiro";
+        else if(token.matches("\\d+.\\d*"))
+            return "Número Real";
+        else if(token.matches("[;:(),.]"))
+            return "Delimitador";
+        else if(token.matches("=|<|>|<=|>=|<>"))
+            return "Operador Relacional";
+        else if(token.equals(":="))
+            return "Operador de Atribuição";
+        else if(token.matches("[+-]|or"))
+            return "Operador Aditivo";
+        else if(token.matches("[*/]|and"))
+            return "Operador Multiplicativo";
+        for(int i = 0; i < lista_palavras_chaves.length; ++i)   // Verificando se o token é uma palavra-chave da Linguagem Pascal.
+           if(token.equals(lista_palavras_chaves[i]))
+               return "Palavra-Chave";
+        if(token.matches("^[a-zA-Z]\\w*"))
+            return "Identificador";
+        return "Token Desconhecido";
+    }
+    
+    public void registrarTabela(String token, String classificacao){ /** OK. */
+        try{
+            arquivoEscrita.write(token + "\t\t" + classificacao + "\t\t" + numero_linha);   // Escrevendo no arquivo Tabela, as informações
+            // a respeito do token, classificação e a linha onde se encontra.
+            arquivoEscrita.newLine(); // Após escrever as informações, vai ocorrer a quebra de linha.
+            arquivoEscrita.flush(); // Precisa deste comando, para poder "autorizar" a escrita no arquivo.
+        }catch(IOException ex3){
+            System.out.print("\n\t\tProblema ex3 >> " + ex3);
         }
-        
+    }
+    
+//    public String esvaziarToken(String token){   /** OK. */
+//        while(token.length() > 0)
+//            token = token.substring(0, token.length() - 1);
+//        return token;
+//    }
+    
+    public String popCaracterToken(String token){  /** OK. Este Método retira o último caracter do token. Similar ao que ocorre
+        na Estrutura de Dados Pilha. */
+        return token.substring(0, token.length() - 1);
     }
     
     public void funcao1(){
@@ -84,21 +127,53 @@ public class Compilador {
                for(int pos = 0; pos < buffer.size(); ++pos){
                    caracter = Character.toString(buffer.get(pos));  // Pegando um caracter, de uma posição específica do
                    // buffer, em que vai ser convertida em uma String e armazena em uma variável.
-                   if(caracter.matches("[a-zA-Z]")){  // Neste if, só entra o caracter que está no alfabeto de a até z ou de A até Z
-                       if(!estado.equalsIgnoreCase("variável"))
-                          estado = "variável";
-                       token += String.valueOf(caracter);   // Concatenando cada caracter, para formar uma String.
-                       if(((pos + 1) < buffer.size()) && ((buffer.get(pos + 1) == ' ') || (buffer.get(pos + 1) == '\n') || (buffer.get(pos + 1) == '\t'))){
-                         /** 
-                         *   Quando for uma posição válida do 'buffer', em que o caracter dessa posição é um espaço em branco
-                         *   ou quebra de linha ou tabulação.
-                         */
-                         estado = consulta(token);   // Realizando a consulta do token e retorna o estado desse token.
-                         
+                   if((caracter.matches("[\\s\t{\n]"))){    // Caracter que não deve ser considerado no código fonte.
+                       // Quando entrar neste if, o caracter não pode ser considerado.
+                       if(caracter.matches("[\\s\t\n]"))
+                           continue;
+                        if(!abreComentario)
+                          abreComentario = true;
+                        while(true){
+                           // Só sai deste while, quando encontrar o caracter  }
+                           if((pos < buffer.size()) && (buffer.get(pos) != '}')){
+                               ++pos;
+                               continue;
+                           }else if((pos == buffer.size()) && (buffer.get(pos - 1) != '}')){  // Chegou no último caracter e não é }
+                               buffer.clear();
+                               //break;
+                           }else{
+                               fechaComentario = true;
+                               if(pos == buffer.size())
+                                  buffer.clear();
+                           }
+                           break;
+                        }
+                        if(buffer.isEmpty())   // Buffer Vazio. Tem que fazer uma nova leitura do código fonte.
+                            break;
+                        continue;
+                   }
+                   if((caracter.matches("\\w")) || (caracter.matches("[^\\w]"))){    // Quando o caracter pertence ou não ao alfabeto de \\w
+                       token += String.valueOf(caracter);  // Concatenando cada caracter, para formar uma String.
+                       estado = consultarToken(token);
+                       if(((pos + 1) < buffer.size()) && (Character.toString(buffer.get(pos + 1)).matches("[^\\w]"))){
+                           // Entra neste if quando existe um caracter sucessor e não pertence ao alfabeto \\w .
+                           registrarTabela(token, estado);
+                           token = "";
+                           estado = "";
+                       }else if(((pos + 1) == buffer.size())){
+                           // Quando está no último caractere.
+                           registrarTabela(token, estado);
+                           token = "";
+                           estado = "";
+                           buffer.clear();   // Apaga o Buffer dos caracteres.
                        }
                    }
                }
-           }
+            }
+            arquivoEntrada.close();
+            arquivoLeitura.close();
+            arquivoSaida.close();
+            arquivoEscrita.close();
         }catch(IOException ex2){
             System.out.print("\n\tErro 2 .");
         }
