@@ -279,6 +279,16 @@ public class ExpressaoRegular {
         
         b = "-".matches("[+-]|or");
         System.out.println("\tResultado 43 > " + b);
+        
+        b = "+12.22".matches("[-+]{0,1}\\d+\\.{0,1}\\d*");
+        System.out.println("\tResultado 44 > " + b);
+        
+        b = "A".matches("[^0-9]");
+        System.out.println("\tResultado 45 > " + b);
+        
+        // caracter.matches("[+-/*<>=.;:(),]")
+        b = ";".matches("[+-/*<>=.;:(),]");
+        System.out.println("\tResultado 46 > " + b);
     }
     
 }

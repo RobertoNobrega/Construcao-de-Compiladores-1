@@ -24,7 +24,8 @@ import java.util.ArrayList;
 public class Compilador {
     
     private String caminho;
-    private ArrayList<Character> buffer;
+//  private ArrayList<Character> buffer;
+    private char[] buffer;
     private String[] lista_palavras_chaves = {"program","var","integer","real","boolean","procedure","begin",
     "end","if","then","else","while","do","not"};
     private FileReader arquivoEntrada;
@@ -41,7 +42,7 @@ public class Compilador {
     public Compilador(){
         String caminho1 = "src/compiladores/programa1Pascal.txt";
         String caminho2 = "src/compiladores/Tabela.txt";
-        buffer = new ArrayList<Character>();
+        //buffer = new ArrayList<Character>();
         //lista_palavras_chaves = new ArrayList<String>();
         try{
             arquivoEntrada = new FileReader(new File(caminho1));
@@ -65,13 +66,14 @@ public class Compilador {
             System.out.print("\n\t\tProblema ex2 >> " + ex2);
         }
     }
+    //    + - / * < > = . ; : ( ) ,
     
     public String consultarToken(String token){
-        if(token.matches("\\d+"))
+        if(token.matches("[-]{0,1}\\d+"))
             return "Número Inteiro";
-        else if(token.matches("\\d+.\\d*"))
+        else if(token.matches("[-]{0,1}\\d+.\\d*"))
             return "Número Real";
-        else if(token.matches("[;:(),.]"))
+        else if(token.matches("[;:(),._]"))
             return "Delimitador";
         else if(token.matches("=|<|>|<=|>=|<>"))
             return "Operador Relacional";
@@ -100,21 +102,28 @@ public class Compilador {
         }
     }
     
-//    public String esvaziarToken(String token){   /** OK. */
-//        while(token.length() > 0)
-//            token = token.substring(0, token.length() - 1);
-//        return token;
-//    }
-    
     public String popCaracterToken(String token){  /** OK. Este Método retira o último caracter do token. Similar ao que ocorre
         na Estrutura de Dados Pilha. */
         return token.substring(0, token.length() - 1);
     }
     
-    public void funcao1(){
+    public int regToken(String token){
+        while((estado = consultarToken(token)).equals("Token Desconhecido")){
+            token = popCaracterToken(token);
+            if(token.isEmpty())
+               return 0; // O Token é Vazio e não entra na Especificação da Linguagem Pascal.
+        }
+        registrarTabela(token, estado);
+        return 1; // Retorna 1 caso tenha registrado com sucesso.
+    }
+    
+    public void executeCompilador(){
         String linha_arquivo;
         String caracter;
         String token = "";
+        int inicio_Comentario = 0;
+        int pos_anterior;
+        boolean semaforo = false;
         if(!flag1){
             System.out.println("\n\tInfelizmente o Arquivo não foi Lido.");
             return;
@@ -122,54 +131,63 @@ public class Compilador {
         try{
            while((linha_arquivo = arquivoLeitura.readLine()) != null){  // Lendo uma linha inteira do arquivo.
                ++numero_linha;
-               for(char caractere : linha_arquivo.toCharArray())
-                   buffer.add(caractere); // Adicionando no buffer, cada componente fundamental da String.
-               for(int pos = 0; pos < buffer.size(); ++pos){
-                   caracter = Character.toString(buffer.get(pos));  // Pegando um caracter, de uma posição específica do
+//             for(char caractere : linha_arquivo.toCharArray())
+//                buffer.add(caractere); // Adicionando no buffer, cada componente fundamental da String.
+               buffer = linha_arquivo.toCharArray();   // A cada linha lida do arquivo, vai ser colocado em um array de char,
+               // para representar o buffer com as informações lidas de cada linha do arquivo.
+               for(int pos = 0; pos < buffer.length; ++pos){
+                   //if((buffer[pos] != '{') && (buffer[pos] != ' ') && (buffer[pos] != '\t'))
+                   caracter = Character.toString(buffer[pos]);  // Pegando um caracter, de uma posição específica do
                    // buffer, em que vai ser convertida em uma String e armazena em uma variável.
-                   if((caracter.matches("[\\s\t{\n]"))){    // Caracter que não deve ser considerado no código fonte.
+                   if(abreComentario == true && fechaComentario == true){  // Um par de abre-chave e fecha-chave foi encontrado.
+                       abreComentario = false;
+                       fechaComentario = false;
+                   } 
+                   if((caracter.matches("[\\s\t{}"))){    // Caracter que não deve ser considerado no código fonte.
                        // Quando entrar neste if, o caracter não pode ser considerado.
-                       if(caracter.matches("[\\s\t\n]"))
-                           continue;
-                        if(!abreComentario)
-                          abreComentario = true;
-                        while(true){
-                           // Só sai deste while, quando encontrar o caracter  }
-                           if((pos < buffer.size()) && (buffer.get(pos) != '}')){
-                               ++pos;
-                               continue;
-                           }else if((pos == buffer.size()) && (buffer.get(pos - 1) != '}')){  // Chegou no último caracter e não é }
-                               buffer.clear();
-                               //break;
-                           }else{
-                               fechaComentario = true;
-                               if(pos == buffer.size())
-                                  buffer.clear();
+                        if(caracter.matches("[{]")){ // Caso encontre um abre chave, é um comentário. Entre aqui.
+                           if(!abreComentario){
+                              inicio_Comentario = numero_linha;
+                              abreComentario = true;  // Colocado um { . Então, tem o começo de um comentário.
                            }
-                           break;
+                           while(true){   // Só sairá do "while true" quando encontrar um fecha-chaves ou quando chegar na última
+                              // posição do buffer, independente se for ou não um fecha-chaves.
+                              if((pos + 1) == buffer.length){  // Última Posição do Buffer.
+                                if(Character.toString(buffer[pos]).equals("}"))  // Última Posição do Buffer, terminando com }
+                                    fechaComentario = true; 
+                                break;  
+                              }else if(Character.toString(buffer[pos]).equals("}")){  // Qualquer Posição, exceto a Última.
+                                // Entrará no if quando encontrar um fecha-cheves.
+                                fechaComentario = true;
+                                break;
+                              }
+                              ++pos;
+                           }
+                        }else if(caracter.matches("[}]")){
+                           if((abreComentario == true) && (fechaComentario == false))
+                               fechaComentario = true;
+                           else{
+                               System.out.println("\n\tErro na linha " + numero_linha + " >> Token } não está casando"
+                               + " com o token {");
+                           }
                         }
-                        if(buffer.isEmpty())   // Buffer Vazio. Tem que fazer uma nova leitura do código fonte.
-                            break;
-                        continue;
-                   }
-                   if((caracter.matches("\\w")) || (caracter.matches("[^\\w]"))){    // Quando o caracter pertence ou não ao alfabeto de \\w
-                       token += String.valueOf(caracter);  // Concatenando cada caracter, para formar uma String.
-                       estado = consultarToken(token);
-                       if(((pos + 1) < buffer.size()) && (Character.toString(buffer.get(pos + 1)).matches("[^\\w]"))){
-                           // Entra neste if quando existe um caracter sucessor e não pertence ao alfabeto \\w .
-                           registrarTabela(token, estado);
-                           token = "";
-                           estado = "";
-                       }else if(((pos + 1) == buffer.size())){
-                           // Quando está no último caractere.
-                           registrarTabela(token, estado);
-                           token = "";
-                           estado = "";
-                           buffer.clear();   // Apaga o Buffer dos caracteres.
+                    }else if(caracter.matches("[+-/*<>=.;:(),]") || caracter.matches("\\w")){   //  "[^\\w]"
+                       token += caracter;
+                       if((pos + 1) != buffer.length){  // Qualquer Posição do Buffer, exceto a última posição.
+                          if(Character.toString(buffer[pos + 1]).matches("[^\\w]"))
+                              continue;
+                          
+                       }else{  // Última Posição do Buffer.
+                           
                        }
-                   }
-               }
+                       
+                       regToken(token);
+                       token = ""; // Limpando o Token.
+                    }
+                }
             }
+            if(abreComentario == true && fechaComentario == false)
+                System.out.println("Erro >> O comentário aberto na linha " + inicio_Comentario + " não foi fechado.");
             arquivoEntrada.close();
             arquivoLeitura.close();
             arquivoSaida.close();

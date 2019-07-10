@@ -2,9 +2,6 @@ Token               Classificação               Linha
 program		Palavra-Chave		1
 teste		Identificador		1
 ;		Delimitador		1
-program		Palavra-Chave		2
-teste		Identificador		2
-;		Delimitador		2
 var		Palavra-Chave		2
 valor1		Identificador		3
 :		Delimitador		3
