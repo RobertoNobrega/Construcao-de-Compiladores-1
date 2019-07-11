@@ -8,9 +8,7 @@ package compiladores;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-//import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-//import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -24,7 +22,6 @@ import java.util.ArrayList;
 public class Compilador {
     
     private String caminho;
-//  private ArrayList<Character> buffer;
     private char[] buffer;
     private String[] lista_palavras_chaves = {"program","var","integer","real","boolean","procedure","begin",
     "end","if","then","else","while","do","not"};
@@ -36,14 +33,10 @@ public class Compilador {
     private boolean abreComentario, fechaComentario;
     private String estado;
     private int numero_linha;
-    //private FileOutputStream arquivoOt;
-    //private BufferedWriter arquivoOutput;
     
     public Compilador(){
         String caminho1 = "src/compiladores/programa1Pascal.txt";
         String caminho2 = "src/compiladores/Tabela.txt";
-        //buffer = new ArrayList<Character>();
-        //lista_palavras_chaves = new ArrayList<String>();
         try{
             arquivoEntrada = new FileReader(new File(caminho1));
             arquivoLeitura = new BufferedReader(arquivoEntrada);
@@ -117,13 +110,33 @@ public class Compilador {
         return 1; // Retorna 1 caso tenha registrado com sucesso.
     }
     
+    public int tokenTest(String token, int posicao){
+        /** Vamos testar se o atual token, ao ser concatenado com o próximo caracter, forma um token válido.*/
+        String estado_atual = "", estado_anterior = "";
+        while(posicao < buffer.length){
+            token += buffer[posicao];
+            if((estado_atual = consultarToken(token)).equals("Token Desconhecido")){
+               token = popCaracterToken(token);
+               //registrarTabela(token, estado_anterior);
+               //return posicao - 1;
+               --posicao;
+               break;
+            }else{
+               estado_anterior = estado_atual; 
+            }
+            ++posicao;
+        }
+        registrarTabela(token, estado_anterior);
+        return posicao;
+    }
+    
     public void executeCompilador(){
         String linha_arquivo;
         String caracter;
         String token = "";
         int inicio_Comentario = 0;
-        int pos_anterior;
-        boolean semaforo = false;
+        //int pos_anterior;
+        //boolean semaforo = false;
         if(!flag1){
             System.out.println("\n\tInfelizmente o Arquivo não foi Lido.");
             return;
@@ -143,7 +156,7 @@ public class Compilador {
                        abreComentario = false;
                        fechaComentario = false;
                    } 
-                   if((caracter.matches("[\\s\t{}"))){    // Caracter que não deve ser considerado no código fonte.
+                   if((caracter.matches("[\\s\t{}]"))){    // Caracter que não deve ser considerado no código fonte.
                        // Quando entrar neste if, o caracter não pode ser considerado.
                         if(caracter.matches("[{]")){ // Caso encontre um abre chave, é um comentário. Entre aqui.
                            if(!abreComentario){
@@ -176,13 +189,11 @@ public class Compilador {
                        if((pos + 1) != buffer.length){  // Qualquer Posição do Buffer, exceto a última posição.
                           if(Character.toString(buffer[pos + 1]).matches("[^\\w]"))
                               continue;
-                          
+                          pos = tokenTest(token, pos + 1);
                        }else{  // Última Posição do Buffer.
-                           
+                          pos = tokenTest(token, pos);
                        }
-                       
-                       regToken(token);
-                       token = ""; // Limpando o Token.
+                       token = "";
                     }
                 }
             }

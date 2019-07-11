@@ -11,7 +11,16 @@ package revendo_basico;
  */
 
 public class Teste4 {
-    public static void main(String[] args){
-       
+    
+    public static void testString(String string){
+        string += " Boa Noite";
+        System.out.println("\n\tFrase 1 : " + string);
     }
+    
+    public static void main(String[] args){
+        String var = "Olá.";
+        testString(var);
+        System.out.println("\n\tFrase 2 : " + var);
+    }
+    
 }
