@@ -289,6 +289,10 @@ public class ExpressaoRegular {
         // caracter.matches("[+-/*<>=.;:(),]")
         b = ";".matches("[+-/*<>=.;:(),]");
         System.out.println("\tResultado 46 > " + b);
+        
+        b = ";".matches("\\w*");
+        System.out.println("\tResultado 47 > " + b);
+        
     }
     
 }

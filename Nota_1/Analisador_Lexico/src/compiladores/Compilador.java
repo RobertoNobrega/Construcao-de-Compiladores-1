@@ -15,8 +15,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- *
+ * 
  * @author roberto
+ * Vamos Conseguir a Aprovação na Disciplina de Construção de Compiladores 1 .
  */
 
 public class Compilador {
@@ -59,7 +60,6 @@ public class Compilador {
             System.out.print("\n\t\tProblema ex2 >> " + ex2);
         }
     }
-    //    + - / * < > = . ; : ( ) ,
     
     public String consultarToken(String token){
         if(token.matches("[-]{0,1}\\d+"))
@@ -100,34 +100,21 @@ public class Compilador {
         return token.substring(0, token.length() - 1);
     }
     
-    public int regToken(String token){
-        while((estado = consultarToken(token)).equals("Token Desconhecido")){
-            token = popCaracterToken(token);
-            if(token.isEmpty())
-               return 0; // O Token é Vazio e não entra na Especificação da Linguagem Pascal.
+    public void tokenTest(String token){
+        String token_atual = token;
+        String descricao_atual = "";
+        int contador = 0;
+        for(int tokenLength = token.length(); tokenLength > 0; ){
+           if((descricao_atual = consultarToken(token)).equals("Token Desconhecido")){
+               ++contador;
+               popCaracterToken(token);
+           }else{   // Token Conhecido.
+               registrarTabela(token, descricao_atual);
+               token = token_atual.substring(tokenLength - contador, token_atual.length());
+               tokenLength = contador;
+               contador = 0;
+           } 
         }
-        registrarTabela(token, estado);
-        return 1; // Retorna 1 caso tenha registrado com sucesso.
-    }
-    
-    public int tokenTest(String token, int posicao){
-        /** Vamos testar se o atual token, ao ser concatenado com o próximo caracter, forma um token válido.*/
-        String estado_atual = "", estado_anterior = "";
-        while(posicao < buffer.length){
-            token += buffer[posicao];
-            if((estado_atual = consultarToken(token)).equals("Token Desconhecido")){
-               token = popCaracterToken(token);
-               //registrarTabela(token, estado_anterior);
-               //return posicao - 1;
-               --posicao;
-               break;
-            }else{
-               estado_anterior = estado_atual; 
-            }
-            ++posicao;
-        }
-        registrarTabela(token, estado_anterior);
-        return posicao;
     }
     
     public void executeCompilador(){
@@ -135,8 +122,9 @@ public class Compilador {
         String caracter;
         String token = "";
         int inicio_Comentario = 0;
+        int pos, p, continuar_Posicao = 0;
         //int pos_anterior;
-        //boolean semaforo = false;
+        boolean semaforo = true;
         if(!flag1){
             System.out.println("\n\tInfelizmente o Arquivo não foi Lido.");
             return;
@@ -148,7 +136,7 @@ public class Compilador {
 //                buffer.add(caractere); // Adicionando no buffer, cada componente fundamental da String.
                buffer = linha_arquivo.toCharArray();   // A cada linha lida do arquivo, vai ser colocado em um array de char,
                // para representar o buffer com as informações lidas de cada linha do arquivo.
-               for(int pos = 0; pos < buffer.length; ++pos){
+               for(pos = 0; pos < buffer.length; ++pos){
                    //if((buffer[pos] != '{') && (buffer[pos] != ' ') && (buffer[pos] != '\t'))
                    caracter = Character.toString(buffer[pos]);  // Pegando um caracter, de uma posição específica do
                    // buffer, em que vai ser convertida em uma String e armazena em uma variável.
@@ -185,16 +173,29 @@ public class Compilador {
                            }
                         }
                     }else if(caracter.matches("[+-/*<>=.;:(),]") || caracter.matches("\\w")){   //  "[^\\w]"
-                       token += caracter;
                        if((pos + 1) != buffer.length){  // Qualquer Posição do Buffer, exceto a última posição.
-                          if(Character.toString(buffer[pos + 1]).matches("[^\\w]"))
-                              continue;
-                          pos = tokenTest(token, pos + 1);
-                       }else{  // Última Posição do Buffer.
-                          pos = tokenTest(token, pos);
+                          if(Character.toString(buffer[pos + 1]).matches("[^\\w]")){
+                            if(token.isEmpty())
+                              registrarTabela(Character.toString(buffer[pos]), consultarToken(Character.toString(buffer[pos])));
+                            else{   // Token Pode estar com um tamanho maior ou igual a 1.
+                              token += caracter;
+                              tokenTest(token);
+                              token = "";
+                            }
+                          }else{  // Caracter pertence a \\w
+                             token += caracter;
+                          }
+                       }else{    // Última Posição do Buffer.
+                          token += caracter;
+                          tokenTest(token);
+                          token = "";
                        }
-                       token = "";
                     }
+                }
+                if(!token.isEmpty()){  // Entrará neste if, quando, após o fim do Buffer, se por acaso tiver algum Token
+                  // que restou, seja verificado, caso esse Token não for vazio.
+                  tokenTest(token);
+                  token = "";
                 }
             }
             if(abreComentario == true && fechaComentario == false)
