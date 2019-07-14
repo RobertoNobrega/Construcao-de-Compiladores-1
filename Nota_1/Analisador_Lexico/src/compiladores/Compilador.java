@@ -22,7 +22,6 @@ import java.util.ArrayList;
 
 public class Compilador {
     
-    private String caminho;
     private char[] buffer;
     private String[] lista_palavras_chaves = {"program","var","integer","real","boolean","procedure","begin",
     "end","if","then","else","while","do","not"};
@@ -32,7 +31,6 @@ public class Compilador {
     private BufferedWriter arquivoEscrita;
     private boolean flag1;
     private boolean abreComentario, fechaComentario;
-    private String estado;
     private int numero_linha;
     
     public Compilador(){
@@ -52,7 +50,6 @@ public class Compilador {
             flag1 = true;   // Arquivo já está referenciado. Já pode ler/escrever nele.
             abreComentario = false;
             fechaComentario = false;
-            estado = "";    // Por enquanto, o estado ainda não foi definido.
             numero_linha = 0;
         }catch(FileNotFoundException ex1){
             System.out.print("\n\tErro 1 . Arquivo Não Localizado." + ex1);
@@ -126,15 +123,12 @@ public class Compilador {
         String consulte_token;
         boolean semaforo = true;
         if(!flag1){
-            System.out.println("\n\tInfelizmente o Arquivo não foi Lido.");
-            return;
+           System.out.println("\n\tInfelizmente o Arquivo não foi Lido.");
+           return;
         }
         try{
            while((linha_arquivo = arquivoLeitura.readLine()) != null){  // Lendo uma linha inteira do arquivo.
                ++numero_linha;
-               //System.out.println("\n\tLinha >> " + numero_linha + "  Tamanho do token >> " + token.length());
-//             for(char caractere : linha_arquivo.toCharArray())
-//                buffer.add(caractere); // Adicionando no buffer, cada componente fundamental da String.
                buffer = linha_arquivo.toCharArray();   // A cada linha lida do arquivo, vai ser colocado em um array de char,
                // para representar o buffer com as informações lidas de cada linha do arquivo.
                for(pos = 0; pos < buffer.length; ++pos){
@@ -176,27 +170,29 @@ public class Compilador {
                     }else if(caracter.matches("[+-/*<>=.;:(),]") || caracter.matches("\\w")){   //  "[^\\w]"
                        if((pos + 1) != buffer.length){  // Qualquer Posição do Buffer, exceto a última posição.
                           if(Character.toString(buffer[pos + 1]).matches("[^\\w]")){
-                            if(token.isEmpty()){   //    <<<<<<<<<<<<   Ajeitei aqui.
+                            if(token.isEmpty()){   //    <<<<<<<<<<<<   Consertado.
                               caracter += Character.toString(buffer[pos + 1]);
-                              if(!((consulte_token = consultarToken(caracter)).equals("Token Desconhecido"))){
+                              if(!((consulte_token = consultarToken(caracter)).equals("Token Desconhecido")) && (abreComentario == false)){
                                 registrarTabela(caracter, consulte_token);
                                 ++pos;
-                              }else{
+                              }else if(abreComentario == false){   // Como não apareceu o { , então o que estiver antes de [^\\w] grave.
                                 registrarTabela(Character.toString(buffer[pos]), consultarToken(Character.toString(buffer[pos])));
                               }
                             }else{   // Token Pode estar com um tamanho maior ou igual a 1.
                               token += caracter;
-                              //if(token.equals(":="))
-                              //  System.out.println("\n\tApareceu o := na linha " + numero_linha);
-                              tokenTest(token);
+                              if(abreComentario == false)
+                                 tokenTest(token);
                               token = "";
                             }
                           }else{  // Caracter pertence a \\w
+                             // Tenho que ajeitar a partir daqui, deste else.
                              token += caracter;
                           }
                        }else{    // Última Posição do Buffer.
-                          token += caracter;
-                          tokenTest(token);
+                          if(abreComentario == false){
+                             token += caracter;
+                             tokenTest(token);
+                          }
                           token = "";
                        }
                     }
