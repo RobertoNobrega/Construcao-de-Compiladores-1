@@ -250,6 +250,49 @@ public class ExpressaoRegular {
         //   $2 > Segunda Variável de re
         r = url.replaceAll(re,"http://$1/$3/$2.jsp");
         System.out.println("\t" + r);
+        
+        b = "a_12".matches("^[a-zA-Z]\\w*");   // Indica que a string, deve começar, obrigatoriamente, entre as letras minúsculas
+        // ou maiúsculas do alfabeto, seguido de nenhum, um ou mais caractere(s) do alfabeto, ou nenhum, um ou mais dígito(s) entre 0 a
+        // 9 ou nenhum, um ou mais sublinha(s).
+        System.out.println("\tResultado 36 > " + b);
+        
+        b = " ".matches("[^\\w]");      //    [^\\w]   >> Desconsidera todo o alfabeto da língua portuguesa, os dígitos numéricos e
+        // o sublinha.    Os outros símbolos são reconhecidos.
+        System.out.println("\tResultado 37 > " + b);
+        
+        b = "01".matches("\\d+");   // Aqui, espera-se que apareça um ou mais dígitos inteiros na String.
+        System.out.println("\tResultado 38 > " + b);
+        
+        b = "1.0".matches("\\d+.\\d*");   // Aqui, espera-se que apareça um ou mais dígitos, seguido de um ponto,
+        // seguido de nenhum, um ou mais dígitos na String. Ou seja, para inserir um valor real.
+        System.out.println("\tResultado 39 > " + b);
+        
+        b = ",".matches("[;:(),]");  // Reconhece apenas ; : ( ) ,
+        System.out.println("\tResultado 40 > " + b);
+        
+        b = " ".matches("=|<|>|<=|>=|<>|and|or|/|\t|\\s");  // Reconhece = < > <= >= <>
+        System.out.println("\tResultado 41 > " + b);
+        
+        // "[\\s\t{\n]"
+        b = "{".matches("[\\s\t{\n]");
+        System.out.println("\tResultado 42 > " + b);
+        
+        b = "-".matches("[+-]|or");
+        System.out.println("\tResultado 43 > " + b);
+        
+        b = "+12.22".matches("[-+]{0,1}\\d+\\.{0,1}\\d*");
+        System.out.println("\tResultado 44 > " + b);
+        
+        b = "A".matches("[^0-9]");
+        System.out.println("\tResultado 45 > " + b);
+        
+        // caracter.matches("[+-/*<>=.;:(),]")
+        b = ";".matches("[+-/*<>=.;:(),]");
+        System.out.println("\tResultado 46 > " + b);
+        
+        b = ";".matches("\\w*");
+        System.out.println("\tResultado 47 > " + b);
+        
     }
     
 }

@@ -31,6 +31,10 @@ public class Concatenacao {
         numero += String.valueOf('0');
         System.out.println("\n\tResultado 3 > " + numero);
         
+        numero = "";
+        System.out.println("\n\tResultado 4 > " + numero);
+        
+        /*
         numero = numero.substring(0, numero.length() - 1);  // Nesse caso, sempre estamos apagando o último caracter da String numero.
         System.out.println("\n\tResultado 4 > " + numero);
         
@@ -40,6 +44,7 @@ public class Concatenacao {
         numero = numero.substring(0, numero.length() - 1);
         System.out.println("\n\tResultado 6 > " + numero);
         
+        */
         if(numero.isEmpty())
            System.out.println("\n\tA variável numero esta vazia.");
         

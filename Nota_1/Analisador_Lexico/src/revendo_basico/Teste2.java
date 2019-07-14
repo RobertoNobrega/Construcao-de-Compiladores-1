@@ -16,8 +16,9 @@ public class Teste2 {
     
     public static String consulta(String[] lista_palavras_chaves, String token){
         for(String tk : lista_palavras_chaves){   // Usando o for-each.
-            
+            ;
         }
+        return "";
     }
     
     public static void main(String[] args){
