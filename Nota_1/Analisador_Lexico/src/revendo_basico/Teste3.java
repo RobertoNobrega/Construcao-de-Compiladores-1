@@ -16,9 +16,6 @@ public class Teste3 {
         char caracter = '\t';
         if(caracter == '\t')
             System.out.println("\n\tTabulação.");
-        String t = ":=";
-        if(t.equals(":="))
-            System.out.println("\n\tIguais.");
     }
     
 }

@@ -1,2 +1,0 @@
-Token               Classificação               Linha
-ab		Identificador		10
