@@ -13,8 +13,7 @@ real		Palavra-Chave		4
 ;		Delimitador		4
 begin		Palavra-Chave		5
 valor1		Identificador		6
-:		Delimitador		6
-=		Operador Relacional		6
+:=		Operador de Atribuição		6
 10		Número Inteiro		6
 ;		Delimitador		6
 end		Palavra-Chave		7

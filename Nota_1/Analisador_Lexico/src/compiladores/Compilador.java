@@ -123,7 +123,7 @@ public class Compilador {
         String token = "";
         int inicio_Comentario = 0;
         int pos, p, continuar_Posicao = 0;
-        //int pos_anterior;
+        String consulte_token;
         boolean semaforo = true;
         if(!flag1){
             System.out.println("\n\tInfelizmente o Arquivo não foi Lido.");
@@ -132,6 +132,7 @@ public class Compilador {
         try{
            while((linha_arquivo = arquivoLeitura.readLine()) != null){  // Lendo uma linha inteira do arquivo.
                ++numero_linha;
+               //System.out.println("\n\tLinha >> " + numero_linha + "  Tamanho do token >> " + token.length());
 //             for(char caractere : linha_arquivo.toCharArray())
 //                buffer.add(caractere); // Adicionando no buffer, cada componente fundamental da String.
                buffer = linha_arquivo.toCharArray();   // A cada linha lida do arquivo, vai ser colocado em um array de char,
@@ -175,10 +176,18 @@ public class Compilador {
                     }else if(caracter.matches("[+-/*<>=.;:(),]") || caracter.matches("\\w")){   //  "[^\\w]"
                        if((pos + 1) != buffer.length){  // Qualquer Posição do Buffer, exceto a última posição.
                           if(Character.toString(buffer[pos + 1]).matches("[^\\w]")){
-                            if(token.isEmpty())
-                              registrarTabela(Character.toString(buffer[pos]), consultarToken(Character.toString(buffer[pos])));
-                            else{   // Token Pode estar com um tamanho maior ou igual a 1.
+                            if(token.isEmpty()){   //    <<<<<<<<<<<<   Ajeitei aqui.
+                              caracter += Character.toString(buffer[pos + 1]);
+                              if(!((consulte_token = consultarToken(caracter)).equals("Token Desconhecido"))){
+                                registrarTabela(caracter, consulte_token);
+                                ++pos;
+                              }else{
+                                registrarTabela(Character.toString(buffer[pos]), consultarToken(Character.toString(buffer[pos])));
+                              }
+                            }else{   // Token Pode estar com um tamanho maior ou igual a 1.
                               token += caracter;
+                              //if(token.equals(":="))
+                              //  System.out.println("\n\tApareceu o := na linha " + numero_linha);
                               tokenTest(token);
                               token = "";
                             }
@@ -200,6 +209,7 @@ public class Compilador {
             }
             if(abreComentario == true && fechaComentario == false)
                 System.out.println("Erro >> O comentário aberto na linha " + inicio_Comentario + " não foi fechado.");
+            System.out.println("\n\tTabela.txt  criada com sucesso pelo Analisador Léxico.");
             arquivoEntrada.close();
             arquivoLeitura.close();
             arquivoSaida.close();
