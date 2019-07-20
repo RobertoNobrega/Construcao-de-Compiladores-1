@@ -46,7 +46,7 @@ public class Compilador {
                 arq.delete();  // Apagando o arquivo da Tabela, pois a Tabela será reescrita (Será Atualizada).
             arquivoSaida = new FileWriter(caminho2,true);
             arquivoEscrita = new BufferedWriter(arquivoSaida);
-            arquivoEscrita.write("Token               Classificação               Linha");  // Escrevendo no arquivo, esta String.
+            arquivoEscrita.write("       Token               Classificação               Linha");  // Escrevendo no arquivo, esta String.
             arquivoEscrita.newLine();  // Quebra de Linha no Arquivo de Escrita.
             arquivoEscrita.flush(); // Precisa deste comando, para poder "autorizar" a escrita no arquivo.
             flag1 = true;   // Arquivo já está referenciado. Já pode ler/escrever nele.
@@ -64,7 +64,7 @@ public class Compilador {
     public String consultarToken(String token){
         if(token.matches("[-]{0,1}\\d+"))
             return "Número Inteiro";
-        else if(token.matches("[-]{0,1}\\d+.\\d*"))
+        else if(token.matches("[-]{0,1}\\d+[.]\\d*"))
             return "Número Real";
         else if(token.matches("[;:(),._]"))
             return "Delimitador";
@@ -86,7 +86,7 @@ public class Compilador {
     
     public void registrarTabela(String token, String classificacao){ /** OK. */
         try{
-            arquivoEscrita.write(token + "\t\t" + classificacao + "\t\t" + numero_linha);   // Escrevendo no arquivo Tabela, as informações
+            arquivoEscrita.write(token + "\t\t\t" + classificacao + "\t\t\t" + numero_linha);   // Escrevendo no arquivo Tabela, as informações
             // a respeito do token, classificação e a linha onde se encontra.
             arquivoEscrita.newLine(); // Após escrever as informações, vai ocorrer a quebra de linha.
             arquivoEscrita.flush(); // Precisa deste comando, para poder "autorizar" a escrita no arquivo.
@@ -117,6 +117,12 @@ public class Compilador {
         }
     }
     
+    public boolean concatToken(String token, int pos){  /* Método que Verifica se deve ou não continuar a Concatenação do Token. */
+        if(!(consultarToken(token + Character.toString(buffer[pos + 1])).equals("Token Desconhecido")))
+           return true;   // Vai Continuar a Concatenação.
+        return false;
+    }
+    
     public void executeCompilador(){
         String linha_arquivo;
         String caracter;
@@ -124,7 +130,7 @@ public class Compilador {
         int inicio_Comentario = 0;
         int pos, p, continuar_Posicao = 0;
         String consulte_token;
-        boolean semaforo = true;
+        boolean semaforo = true, registrar = false;
         if(!flag1){
             System.out.println("\n\tInfelizmente o Arquivo não foi Lido.");
             return;
@@ -176,34 +182,86 @@ public class Compilador {
                     }else if(caracter.matches("[+-/*<>=.;:(),]") || caracter.matches("\\w")){   //  "[^\\w]"
                        if((pos + 1) != buffer.length){  // Qualquer Posição do Buffer, exceto a última posição.
                           if(Character.toString(buffer[pos + 1]).matches("[^\\w]")){
-                            if(token.isEmpty()){   //    <<<<<<<<<<<<   Ajeitei aqui.
-                              caracter += Character.toString(buffer[pos + 1]);
-                              if(!((consulte_token = consultarToken(caracter)).equals("Token Desconhecido"))){
-                                registrarTabela(caracter, consulte_token);
-                                ++pos;
-                              }else{
-                                registrarTabela(Character.toString(buffer[pos]), consultarToken(Character.toString(buffer[pos])));
+                            if(token.isEmpty()){
+                              if(consultarToken(caracter + Character.toString(buffer[pos + 1])).equals("Token Desconhecido")){
+                                 if(!abreComentario)
+                                   tokenTest(caracter);
+                                 registrar = false;
+                              }else if(!abreComentario){   // Quando o Token é Conhecido. Mas, deve-se gravar quando não está em Comentário.
+                                 token += caracter;
+                                 registrar = true;
                               }
-                            }else{   // Token Pode estar com um tamanho maior ou igual a 1.
+                            }else{   // Token pode estar com um tamanho maior ou igual a 1.
                               token += caracter;
-                              //if(token.equals(":="))
-                              //  System.out.println("\n\tApareceu o := na linha " + numero_linha);
-                              tokenTest(token);
-                              token = "";
+                              if(!(consultarToken(token).equals("Token Desconhecido"))){  // No momento, o Token é Conhecido.
+                                if(!(concatToken(token, pos))){
+                                // O Token checado após uma possível concatenação não é válida.
+                                   if(registrar && !(abreComentario)){
+                                      System.out.print("\n\tToken Formado >> " + token);
+                                      tokenTest(token);
+                                   }
+                                   token = "";
+                                   registrar = false;
+                                }else if(!abreComentario){ // Token Conhecido.
+                                   registrar = true;
+                                   //continue;
+                                }
+                              }else{ // Token Desconhecido.
+                                 if(caracter.matches("[\\w]")){
+                                    System.out.println("\n\t\tLinha 209 >> Token " + token + " não confere.");
+                                    registrar = false;
+                                    token = "";
+                                 }
+                                 /** Possa ser que se deva colocar um else, para tratar aqui, se matches("[^\\w]") */
+                              }
                             }
                           }else{  // Caracter pertence a \\w
                              token += caracter;
+                             if(!(concatToken(token, pos))){
+                                // O Token checado após uma possível concatenação não é válida.
+                                if(Character.toString(buffer[pos + 1]).matches("[\\w]")){
+                                    registrar = false;
+                                }else if(!abreComentario){
+                                    registrar = true;
+                                } 
+                             }else if(!abreComentario){   // Token é Válido e não está em um comentário.
+                                registrar = true;
+                             }
                           }
                        }else{    // Última Posição do Buffer.
-                          token += caracter;
-                          tokenTest(token);
-                          token = "";
+                          //token += caracter;
+                          //System.out.print("\n\t\tToken formado 1 >>> " + token);
+                          //test = token + caracter;
+                          if(consultarToken(token + caracter).equals("Token Desconhecido")){
+                             token += caracter;
+                             if(caracter.matches("[\\w]")){
+                                 registrar = false;
+                             }else if(consultarToken(token).equals("Token Desconhecido")){
+                                 //tokenTest(popCaracterToken(caracter));
+                                 registrar = false;
+                             }
+                          }else{ // Para o Token Conhecido.
+                             if(!abreComentario){
+                               if(token.isEmpty() || buffer.length == 1){
+                                  tokenTest(caracter);
+                                  registrar = false;
+                               }else if(concatToken(token, pos - 1)){   // Token Válido.
+                                  tokenTest(token + caracter);
+                                  registrar = false;
+                               }//else{ // Token Desconhecido.
+                                  //d 
+                             //}
+                            }
+                          }
                        }
                     }
                 }
                 if(!token.isEmpty()){  // Entrará neste if, quando, após o fim do Buffer, se por acaso tiver algum Token
                   // que restou, seja verificado, caso esse Token não for vazio.
-                  tokenTest(token);
+                  if(registrar)
+                     tokenTest(token);
+                  else
+                     System.out.println("\n\t\tToken " + token + " não confere.");
                   token = "";
                 }
             }

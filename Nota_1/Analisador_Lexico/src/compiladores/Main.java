@@ -5,11 +5,6 @@
  */
 package compiladores;
 
-/**
- *
- * @author roberto
- */
-
 public class Main {    
     public static void main(String[] args){
         Compilador compilador = new Compilador();
