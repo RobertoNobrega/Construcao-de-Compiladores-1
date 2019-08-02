@@ -86,7 +86,7 @@ public class Compilador {
     
     public void registrarTabela(String token, String classificacao){ /** OK. */
         try{
-            arquivoEscrita.write(token + "\t\t\t" + classificacao + "\t\t\t" + numero_linha);   // Escrevendo no arquivo Tabela, as informações
+            arquivoEscrita.write("\t" + token + "\t\t\t" + classificacao + "\t\t\t" + numero_linha);   // Escrevendo no arquivo Tabela, as informações
             // a respeito do token, classificação e a linha onde se encontra.
             arquivoEscrita.newLine(); // Após escrever as informações, vai ocorrer a quebra de linha.
             arquivoEscrita.flush(); // Precisa deste comando, para poder "autorizar" a escrita no arquivo.

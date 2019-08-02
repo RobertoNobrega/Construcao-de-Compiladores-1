@@ -5,17 +5,12 @@
             <url>src/compiladores/Main.java</url>
             <bookmark id="1">
                 <name/>
-                <line>10</line>
+                <line>7</line>
                 <key/>
             </bookmark>
         </file>
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/home/roberto/Documentos/UFPB/2019.1/Construcao_Compiladores_1/Disciplina_Construcao_Compiladores_1/Nota_1/Analisador_Lexico/src/compiladores/Compilador.java</file>
-            <file>file:/home/roberto/Documentos/UFPB/2019.1/Construcao_Compiladores_1/Disciplina_Construcao_Compiladores_1/Nota_1/Analisador_Lexico/src/compiladores/Main.java</file>
-            <file>file:/home/roberto/Documentos/UFPB/2019.1/Construcao_Compiladores_1/Disciplina_Construcao_Compiladores_1/Nota_1/Analisador_Lexico/src/compiladores/programa1Pascal.txt</file>
-            <file>file:/home/roberto/Documentos/UFPB/2019.1/Construcao_Compiladores_1/Disciplina_Construcao_Compiladores_1/Nota_1/Analisador_Lexico/src/compiladores/Tabela.txt</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>

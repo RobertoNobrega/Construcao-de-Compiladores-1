@@ -1,20 +1,20 @@
        Token               Classificação               Linha
-program			Palavra-Chave			1
-teste			Identificador			1
-;			Delimitador			1
-var			Palavra-Chave			5
-valor1			Identificador			6
-:			Delimitador			6
-integer			Palavra-Chave			6
-;			Delimitador			6
-valor2			Identificador			7
-:			Delimitador			7
-real			Palavra-Chave			7
-;			Delimitador			7
-begin			Palavra-Chave			8
-valor1			Identificador			9
-:=			Operador de Atribuição			9
-10			Número Inteiro			9
-;			Delimitador			9
-end			Palavra-Chave			10
-.			Delimitador			10
+	program			Palavra-Chave			1
+	teste			Identificador			1
+	;			Delimitador			1
+	var			Palavra-Chave			5
+	valor1			Identificador			6
+	:			Delimitador			6
+	integer			Palavra-Chave			6
+	;			Delimitador			6
+	valor2			Identificador			7
+	:			Delimitador			7
+	real			Palavra-Chave			7
+	;			Delimitador			7
+	begin			Palavra-Chave			8
+	valor1			Identificador			9
+	:=			Operador de Atribuição			9
+	10			Número Inteiro			9
+	;			Delimitador			9
+	end			Palavra-Chave			10
+	.			Delimitador			10
