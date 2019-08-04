@@ -57,6 +57,39 @@ public class Analisador_Sintatico{
 		System.out.println("\n\tQuantidade de Objetos >> " + buffer.size());
 	}
 	
+	public void lista_de_parametros_linha() throws SintaticoException{
+	   if(!buffer.isEmpty() && buffer.get(0).getToken().equals(";")){
+		  buffer.remove(0);
+		  if(!buffer.isEmpty() && buffer.get(0).getClassificacao().equals("Identificador")){
+			 lista_de_identificadores();
+			 if(!buffer.isEmpty() && buffer.get(0).getToken().equals(":")){
+				buffer.remove(0);
+				/////    Continuar Aqui.   Verificar no método tipo()  .   <<<
+				if(!buffer.isEmpty() && tipo(buffer.get(0).getToken())){
+				   buffer.remove(0);
+				   if(!buffer.isEmpty() && buffer.get(0).getToken().equals(";")){
+					  lista_de_parametros_linha();
+				   }else if(!buffer.isEmpty()){
+					  System.out.println("\n\tO Buffer está vazio no método lista_de_parametros_linha.");
+				   }
+				}else if(buffer.isEmpty()){
+				   System.out.println("\n\tO Buffer está vazio no método lista_de_parametros_linha.");
+				}else{
+				   throw new SintaticoException("integer ou real ou boolean", buffer.get(0).getToken());
+				}
+			 }else if(buffer.isEmpty()){
+			    System.out.println("\n\tO Buffer está Vazio no método lista_parametros_linha.");
+			 }else{
+				throw new SintaticoException(":", buffer.get(0).getToken());
+			 }
+		  }else if(buffer.isEmpty()){
+			 System.out.println("\n\tO Buffer está Vazio no método lista_de_parametros_linha.");
+		  }
+	   }else if(buffer.isEmpty()){
+		  System.out.println("\n\tO Buffer está Vazio no método lista_de_parametros_linha.");
+	   }
+	}
+	
 	public void lista_de_parametros() throws SintaticoException{
 	   lista_de_identificadores();
 	   if(!buffer.isEmpty() && buffer.get(0).getToken().equals(":")){
@@ -64,6 +97,13 @@ public class Analisador_Sintatico{
 		  if(!buffer.isEmpty() && tipo(buffer.get(0).getToken())){
 			buffer.remove(0);
 			///        Continuar a Implementar  Aqui.
+			if(!buffer.isEmpty() && buffer.get(0).getToken().equals(";")){
+			   lista_de_parametros_linha();
+			}else if(buffer.isEmpty()){
+			  System.out.println("\n\tO Buffer está vazio no método lista_de_parametros.");	
+			}else{
+			   throw new SintaticoException(";", buffer.get(0).getToken());
+			}
 		  }else if(buffer.isEmpty()){
 			System.out.println("\n\tO Buffer está vazio no método lista_de_parametros.");
 		  }else{
@@ -80,9 +120,20 @@ public class Analisador_Sintatico{
 	   if(!buffer.isEmpty() && buffer.get(0).getToken().equals("(")){
 		  buffer.remove(0);
 		  lista_de_parametros();
+		  if(!buffer.isEmpty() && buffer.get(0).getToken().equals(")")){
+			 buffer.remove(0);
+		  }else if(buffer.isEmpty()){
+			 System.out.println("\n\tO Buffer está Vazio no método argumentos.");
+		  }else{
+			 throw new SintaticoException(")",buffer.get(0).getToken());
+		  }
 	   }else if(buffer.isEmpty()){
-		  System.out.println("\n\tO Buffer está vazio no método argumentos.");
+		  System.out.println("\n\tO Buffer está Vazio no método argumentos.");
 	   }
+	}
+	
+	public void comando_composto() throws SintaticoException{
+		// >> Continuar Aqui.
 	}
 	
 	public void declaracao_de_subprograma() throws SintaticoException{
@@ -92,6 +143,16 @@ public class Analisador_Sintatico{
 			  buffer.remove(0);
 			  // Verificar o "método argumentos".
 			  argumentos();
+			  if(!buffer.isEmpty() && buffer.get(0).getToken().equals(";")){
+				 buffer.remove(0);
+				 declaracoes_variaveis();
+				 declaracoes_de_subprogramas();
+				 comando_composto();
+			  }else if(buffer.isEmpty()){
+				 System.out.println("\n\tO Buffer é Vazio no método declaracao_de_subprograma.");
+			  }else{
+				 throw new SintaticoException(";",buffer.get(0).getToken());
+			  }
 		   }else if(buffer.isEmpty()){
 			  System.out.println("\n\tO Buffer é Vazio no método declaracao_de_subprograma.");
 		   }else{
@@ -104,8 +165,33 @@ public class Analisador_Sintatico{
 		}
 	}
 	
+	public void declaracao_de_subprogramas_linha() throws SintaticoException{
+		if(!buffer.isEmpty() && buffer.get(0).getToken().equals("procedure")){
+			declaracao_de_subprograma();
+			if(!buffer.isEmpty() && buffer.get(0).getToken().equals(";")){
+			   buffer.remove(0);
+			   declaracao_de_subprogramas_linha();
+			}else if(buffer.isEmpty()){
+			   System.out.println("\n\tO Buffer é Vazio no método declaracao_de_subprogramas_linha.");
+			}else{
+			   throw new SintaticoException(";", buffer.get(0).getToken());
+			}
+		}else if(buffer.isEmpty()){
+		  System.out.println("\n\tO Buffer é Vazio no método declaracao_de_subprogramas_linha.");
+		}
+	}
+	
 	public void declaracoes_de_subprogramas() throws SintaticoException{
-		declaracao_de_subprograma();
+		if(!buffer.isEmpty() && buffer.get(0).getToken().equals("procedure"))
+		   declaracao_de_subprograma();
+		else if(!buffer.isEmpty() && buffer.get(0).getToken().equals(";")){
+		   buffer.remove(0);
+		   declaracao_de_subprogramas_linha();   // <<<<<<
+		}else if(buffer.isEmpty()){
+		   System.out.println("\n\tO Buffer é Vazio no método declaracoes_de_subprogramas.");
+		}else{
+		   throw new SintaticoException(";", buffer.get(0).getToken());
+		}
 	}
 	
 	public void lista_de_identificadores_linha() throws SintaticoException{
