@@ -5,14 +5,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class Analisador_Sintatico{
+public class ASintatico {
 	
 	private ArrayList<Token> buffer;
 	private FileReader arquivo;
 	private BufferedReader arquivo_leitura;
 	private boolean flagArquivo;
 	
-	public Analisador_Sintatico(String caminho){
+	public ASintatico(String caminho){
 	   try{
 	      arquivo = new FileReader(new File(caminho));
 	      arquivo_leitura = new BufferedReader(arquivo);
@@ -63,7 +63,7 @@ public class Analisador_Sintatico{
 		  buffer.remove(0);
 		  if(!buffer.isEmpty() && tipo(buffer.get(0).getToken())){
 			buffer.remove(0);
-			///        Continuar a Implementar  Aqui.
+			///        Continuar a Implementar.
 		  }else if(buffer.isEmpty()){
 			System.out.println("\n\tO Buffer está vazio no método lista_de_parametros.");
 		  }else{

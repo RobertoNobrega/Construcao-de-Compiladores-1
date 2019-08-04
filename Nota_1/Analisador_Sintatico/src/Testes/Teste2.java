@@ -13,6 +13,7 @@ public class Teste2{
 	public static FileReader arquivo;
 	public static BufferedReader arquivo_leitura;
 	
+	
 	public static void armazeneTokenBuffer(){
 		String string_temp[] = {"","",""};
 		int caracter, posicao = 0;
