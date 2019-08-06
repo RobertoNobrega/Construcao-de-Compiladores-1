@@ -162,7 +162,7 @@ public class Analisador_Sintatico{
 		return false;
 	}
 	
-	public void fator() throws SintaticoException{
+	public boolean fator() throws SintaticoException{
 		if(!buffer.isEmpty()){
 		   if(buffer.get(0).getClassificacao().equals("Identificador")){
 			  buffer.remove(0);
@@ -170,26 +170,81 @@ public class Analisador_Sintatico{
 				buffer.remove(0);
 				lista_de_expressoes();
 				if(!buffer.isEmpty() && buffer.get(0).getClassificacao().equals(")")){
-				   
+				   buffer.remove(0);
+				   return true;
+				}else if(buffer.isEmpty()){
+			       System.out.println("\n\tO Buffer está Vazio no método fator.");
+			       return false;
+				}else{
+				   throw new SintaticoException(")", buffer.get(0).getToken());
 				}
+			  }else{
+				 return true;
 			  }
 		   }else if(buffer.get(0).getClassificacao().equals("Número Inteiro") || buffer.get(0).getClassificacao().equals("Número Real")
 			 || buffer.get(0).getClassificacao().equals("true") || buffer.get(0).getClassificacao().equals("false")){
-			   
+			   buffer.remove(0);
+			   return true;
 		   }else if(buffer.get(0).getToken().equals("(")){
-			   
+			   buffer.remove(0);
+			   expressao();
+			   if(!buffer.isEmpty() && buffer.get(0).getToken().equals(")")){
+				  buffer.remove(0);
+				  return true;
+			   }else if(buffer.isEmpty()){
+				  System.out.println("\n\tO Buffer está Vazio no método fator.");
+				  return false;
+			   }else{
+				  throw new SintaticoException(")", buffer.get(0).getToken());
+			   }
 		   }else if(buffer.get(0).getToken().equals("not")){
-			   
+			   buffer.remove(0);
+			   if(!buffer.isEmpty())
+				 fator();
+			   else{
+				 System.out.println("\n\tO Buffer está Vazio no método fator.");
+			     return false;
+			   }
+			   return true;
 		   }
+		}else{
+		   System.out.println("\n\tO Buffer está Vazio no método fator.");
+		   return false;
+		}
+		return true;
+	}
+	
+	public void termo_linha() throws SintaticoException{
+		if(!buffer.isEmpty() && op_multiplicativo(buffer.get(0).getToken())){
+		   buffer.remove(0);
+		   if(fator())
+		     termo_linha();
+		   else
+			 throw new SintaticoException("um fator", buffer.get(0).getToken());
 		}
 	}
 	
-	public void termo() throws SintaticoException{
-		fator();
+	public boolean termo() throws SintaticoException{
+		if(fator()) {
+		  termo_linha();
+		  return true;
+		}
+		return false;
+	}
+	
+	public void expressao_simples_linha() throws SintaticoException{
+		if(!buffer.isEmpty() && op_aditivo(buffer.get(0).getToken())){
+		   sa
+		}else if(buffer.isEmpty())
+		   System.out.println("\n\tO Buffer está Vazio no método expressao_simples_linha.");
 	}
 	
 	public void expressao_simples() throws SintaticoException{
-		termo();
+		if(termo()){
+		  expressao_simples_linha();
+		}else if(){ x
+		   
+		}
 	}
 	
 	public void expressao() throws SintaticoException{

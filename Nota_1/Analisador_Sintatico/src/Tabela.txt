@@ -7,4 +7,6 @@
 	,			Delimitador			6
 	valor2		Identificador		6
 	:			Delimitador			6
+	real			Palavra-Chave			6
+	;			Delimitador			6
 	
