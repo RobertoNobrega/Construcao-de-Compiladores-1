@@ -1,3 +1,5 @@
+package Sintatico;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,12 +12,12 @@ import java.util.List;
 
 public class Main2 {
 	
-	private static ArrayList<Token> lista_tokens;
+	/*private static ArrayList<Token> lista_tokens;
 	private FileReader arquivo;
 	private BufferedReader arquivo_leitura;
 	
 	public void comeco(){
-		String caminho = "src/Tabela.txt";
+		String caminho = "C:\\Users\\Alisson\\eclipse-workspace\\Analisador_Sintatico\\src\\Tabela.txt";
 		try{
 		   arquivo = new FileReader(new File(caminho));
 		   arquivo_leitura = new BufferedReader(arquivo);
@@ -23,11 +25,11 @@ public class Main2 {
 		   lista_tokens = new ArrayList<Token>();
 		   preencherBuffer();
 		}catch(FileNotFoundException e){
-			System.out.print("\n\tArquivo Não Achado.");
+			System.out.print("\n\tArquivo N�o Achado.");
 		}catch(IOException e){
 			System.out.print("\n\tErro no Arquivo de Leitura.");
 		}
-	}
+	}*/
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -64,27 +66,27 @@ public class Main2 {
 		lista_tokens.add(token8);
 		lista_tokens.add(token9);
 		*/
-		Main2 main2 = new Main2();
+	/*	Main2 main2 = new Main2();
 		main2.comeco();
 		Iterator<Token> lista_I_tokens = lista_tokens.iterator();
 		while(lista_I_tokens.hasNext()) {
 			Token prox = lista_I_tokens.next();
 			System.out.println("Token: "+ prox.getToken());
 			System.out.println("Classificação: "+ prox.getClassificacao());
-		}
+		}*/
 	/*	for(int i=0;i<lista_tokens.size();i++) {
 			System.out.println("mostrar Token: " + (lista_tokens.get(i)).getToken() );
 			System.out.println("mostrar Classifica��o: " + (lista_tokens.get(i)).getClassificacao() );
 			System.out.println("mostrar linha: " + (lista_tokens.get(i)).getLinha() );
 		}*/
-		
+		AnalisadorSintatico2 sintatico = new AnalisadorSintatico2("C:\\\\Users\\\\Alisson\\\\eclipse-workspace\\\\Analisador_Sintatico\\\\src\\\\Tabela.txt");
 		
 		//ChecarClassificaoAndTipo(token2);
 		System.out.println("Fim!");
 		
 	}
 	
-	public void preencherBuffer() throws IOException{
+	/*public void preencherBuffer() throws IOException{
 	    String[] strings = {"","",""};
 	    int caracter, posicao = 0;
 	    boolean semaforo = false;
@@ -142,7 +144,7 @@ public class Main2 {
 			System.out.println("Tipo ok!");
 	}*/
 	// Teste checarProgram();
-	
+	/*
 	public void checarProgram(Token token){	//program(palavra reservada) identificador e ;
 	   try{
 		if( !(token.getToken()).contentEquals("program") ) throw new SintaticoException("program", token);
@@ -217,6 +219,6 @@ public class Main2 {
 	   }catch(SintaticoException e){
 	       System.out.println(e);
 	   }
-	}
+	}*/
 	
 }
