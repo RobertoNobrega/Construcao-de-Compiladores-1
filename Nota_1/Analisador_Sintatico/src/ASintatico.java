@@ -148,17 +148,6 @@ public class ASintatico{
 	// 			Métodos que iniciam com a letra   d
 	
 	public int declaracoes_variaveis() throws SintaticoException{
-		/*
-		if(!buffer.isEmpty() && buffer.get(0).getToken().equals("var")){
-		   buffer.remove(0);
-		   // Recebeu aqui    var
-		   return lista_declaracoes_variaveis();
-		}else if(buffer.isEmpty()){
-		   System.out.println("\n\tO Buffer está vazio no método declaracoes_variaveis.");
-		   return 2;   // 2  >> Indica Buffer Vazio.
-		}
-		return 3; //  3 >> Indica Epsilon (qualquer coisa, exceto  var no método declaracoes_variaveis).
-		*/
 		int op = verificacao("var", true);
 		if(op == 1){
 		   // Recebeu var
@@ -244,28 +233,6 @@ public class ASintatico{
 	}
 	
 	public int lista_de_identificadores_linha() throws SintaticoException{
-		//int opcao;
-		/*
-		if(!buffer.isEmpty() && buffer.get(0).getToken().equals(",")){
-			buffer.remove(0);
-			if(!buffer.isEmpty() && buffer.get(0).getClassificacao().equals("Identificador")){
-			   buffer.remove(0);
-			   // Recebeu    ,id
-			   lista_de_identificadores_linha();
-			   return 1; //  1 >> Indica que recebeu    ,id
-			}else if(buffer.isEmpty()){
-				System.out.println("\n\tO Buffer está vazio no método lista_de_identificadores_linha."
-				+ "Porém, leu vírgula sem ser seguido de Identificador.");
-				return 4;  // 4  >> Indica Buffer Vazio e não leu identificador após a vírgula.
-		    }else{
-			   throw new SintaticoException("Identificador", buffer.get(0).getClassificacao());
-			}
-		}else if(buffer.isEmpty()){
-			System.out.println("\n\tO Buffer está vazio no método lista_de_identificadores_linha.");
-			return 2; // 2  >> Indica Buffer Vazio.
-		}
-		return 3; //  3 >> Indica Epsilon (qualquer coisa, exceto vírgula).
-		*/
 		int op = verificacao(",", true);
 		if(op == 1){
 		   // Recebeu ,
@@ -274,8 +241,8 @@ public class ASintatico{
 		   if(op == 1){
 			 // OK.   Recebeu  ,id
 			 buffer.remove(0);
-			 lista_de_identificadores_linha();
-			 return 1;   // OK.   Recebeu  ,id
+			 return lista_de_identificadores_linha();
+			 //return 1;   // OK.   Recebeu  ,id
 		   }else if(op == 2)  // Buffer Vazio
 			 throw new SintaticoException("Identificador", "buffer vazio");
 		   throw new SintaticoException("Identificador", buffer.get(0).getClassificacao());
@@ -286,28 +253,11 @@ public class ASintatico{
 	}
 	
 	public int lista_de_identificadores() throws SintaticoException{
-		/*
-		//int opcao;
-		if(!buffer.isEmpty() && buffer.get(0).getClassificacao().equals("Identificador")){
-		   buffer.remove(0);
-		   // Recebeu   id
-		   //opcao = lista_de_identificadores_linha();
-		   //lista_de_identificadores_linha();
-		   return lista_de_identificadores_linha();   // OBS : Se nesta chamada retornar 3 , então será id concatenado com 
-		   //epsilon.  2 para Buffer Vazio.
-		}else if(buffer.isEmpty()){
-			System.out.println("\n\tO Buffer está vazio no método lista_de_identificadores."
-			+ "\n\tEsperado um Identificador.");
-			return 2; // 2  >> Indica Buffer Vazio. 
-	    }
-		System.out.print("\n\tEsperado um Identificador em lista_de_identificadores.");
-		return 4;
-		*/
 		int op = verificacao("Identificador", false);
 		if(op == 1){
 		   // Recebeu id
 		   buffer.remove(0);
-		   return lista_de_identificadores_linha();    // Vai retornar 1 ou 3
+		   return lista_de_identificadores_linha();    // Vai retornar 1 >> ,id    ou    3  >> epsilon
 		}else if(op == 2){  // Buffer Vazio
 		   throw new SintaticoException("Identificador", "buffer vazio");
 		}
@@ -316,7 +266,7 @@ public class ASintatico{
 	
 	public int lista_declaracoes_variaveis_linha() throws SintaticoException{
 		int op = lista_de_identificadores();
-		if(op == 3){    // id epsilon  ou id, id, id,... epsilon
+		if(op == 3){    // Recebeu epsilon .
 		   op = verificacao(":", true);
 		   if(op == 1){  // Recebeu dois pontos
 			  buffer.remove(0);
@@ -325,47 +275,25 @@ public class ASintatico{
 				if(!buffer.isEmpty() && buffer.get(0).getToken().equals(";")){
 				   //    OK.
 				   buffer.remove(0);
-				   return lista_declaracoes_variaveis_linha();  <<< 
+				   op = 1;  // OK.
+				   op = lista_declaracoes_variaveis_linha();
 				}else if(buffer.isEmpty()){
 				   //System.out.println("\n\tO Buffer está Vazio no método lista_declaracoes_variaveis_linha ."
 				   //+ "\n\tEsperado  ; ");
 				   throw new SintaticoException(";", "buffer vazio");
-				}
-				throw new SintaticoException(";", buffer.get(0).getToken());
+				}else
+				  throw new SintaticoException(";", buffer.get(0).getToken());
 			  }else if(buffer.isEmpty()){
 				//System.out.println("\n\tO Buffer está Vazio no método lista_declaracoes_variaveis_linha ."
 				//+ "\n\tEsperado integer ou real ou boolean.");
 				throw new SintaticoException("integer ou real ou boolean", "buffer vazio");
-			  }
-			  throw new SintaticoException("integer ou real ou boolean", buffer.get(0).getToken());
-		   }
-		   throw new SintaticoException(":", buffer.get(0).getToken());
-		}
-		/*
-		int op = lista_de_identificadores();
-		if(op == 4 || op == 2)
-		   return op;   // ERRO ou Buffer Vazio.
-		if(!buffer.isEmpty() && buffer.get(0).getToken().equals(":")){
-		   buffer.remove(0);
-		   if(!buffer.isEmpty() && tipo(buffer.get(0).getToken())){
-		      buffer.remove(0);
-		      if(!buffer.isEmpty() && buffer.get(0).getToken().equals(";")){
-		    	 buffer.remove(0);
-		    	 return lista_declaracoes_variaveis_linha();
-		      }else if(buffer.isEmpty()){
-		    	System.out.println("\n\tO Buffer está Vazio no método lista_declaracoes_variaveis_linha ."
-		    	+ "\n\tEsperado  ; ");
-		      }
-		   }else if(buffer.isEmpty()){
-			 System.out.println("\n\tO Buffer está Vazio no método lista_declaracoes_variaveis_linha ."
-			 + "\n\tEsperado integer ou real ou boolean.");
-		   }
-		}else if(buffer.isEmpty()){
-			System.out.println("\n\tO Buffer está vazio no método lista_declaracoes_variaveis_linha ."
-			+ "\n\tEsperado  : ");
-		}
-		return 4;   // ERRO.
-		*/
+			  }else
+			    throw new SintaticoException("integer ou real ou boolean", buffer.get(0).getToken());
+		   }else
+		     throw new SintaticoException(":", buffer.get(0).getToken());
+		}else
+		   op = 0;  // Falhou.
+		return op;
 	}
 	
 	public void lista_de_parametros() throws SintaticoException{
@@ -395,14 +323,8 @@ public class ASintatico{
 	}
 	
 	public int lista_declaracoes_variaveis() throws SintaticoException{
-		/*
-		if(lista_de_identificadores() == 2){
-		   System.out.println("\n\tO Buffer está Vazio no método lista_declaracoes_variaveis.");
-		   return 2;
-		}
-		*/
 		int op;
-		lista_de_identificadores();
+		lista_de_identificadores();    // << Se retornar 3 , então é epsilon.
 		op = verificacao(":", true);
 		if(op == 1){
 			// Recebeu :
@@ -410,65 +332,27 @@ public class ASintatico{
 			if(!buffer.isEmpty() && tipo(buffer.get(0).getToken())){
 			  buffer.remove(0);
 			  // Recebeu integer ou real ou boolean
-			  /*
-			  if(!buffer.isEmpty() && buffer.get(0).getToken().equals(";")){
-				 buffer.remove(0);
-			     return lista_declaracoes_variaveis_linha();
-			  }else if(buffer.isEmpty()){
-				 System.out.println("\n\tO Buffer está vazio no método lista_declaracoes_variaveis."
-				 + "\n\tEsperava-se ; ");
-				 return 4;
-			  }else{
-				throw new SintaticoException(";", buffer.get(0).getToken()); 
-			  }
-			  */
 			  op = verificacao(";", true);
 			  if(op == 1){
 				 // OK.
-				return lista_declaracoes_variaveis_linha();   <<<
+				//return lista_declaracoes_variaveis_linha();   <<<
+				op = lista_declaracoes_variaveis_linha();
+				//return 1;
 			  }else if(op == 2){
 				 throw new SintaticoException(";", "buffer vazio");
-			  }
-			  throw new SintaticoException(";", buffer.get(0).getToken());
+			  }else
+			    throw new SintaticoException(";", buffer.get(0).getToken());
 			}else if(buffer.isEmpty()){
 			  throw new SintaticoException("integer ou real ou boolean", "buffer vazio");
 			}else{
 			  throw new SintaticoException("integer ou real ou boolean", buffer.get(0).getToken());
 			}
-		}else if(op == 2) // Buffer Vazio.
+		}else if(op == 2){ // Buffer Vazio.
 		   throw new SintaticoException(":", "buffer vazio");
-		throw new SintaticoException(":", buffer.get(0).getToken());
-		/*
-		if(!buffer.isEmpty() && buffer.get(0).getToken().equals(":")){
-			buffer.remove(0);
-			if(!buffer.isEmpty() && tipo(buffer.get(0).getToken())){
-			   buffer.remove(0);
-			   if(!buffer.isEmpty() && buffer.get(0).getToken().equals(";")){
-				  buffer.remove(0);
-				  return lista_declaracoes_variaveis_linha();
-			   }else if(buffer.isEmpty()){
-				  System.out.println("\n\tO Buffer está vazio no método lista_declaracoes_variaveis."
-				  + "\n\tEsperava-se ; ");
-				  return 4;
-			   }else{
-				  throw new SintaticoException(";", buffer.get(0).getToken()); 
-			   }
-			}else if(buffer.isEmpty()){
-			   System.out.println("\n\tO Buffer está Vazio no método lista_declaracoes_variaveis."
-			   + "\n\tEsperava-se  tipo .");
-			   return 4;
-			}else{
-			   throw new SintaticoException("integer ou real ou boolean", buffer.get(0).getToken());
-			}
-		}else if(buffer.isEmpty()){
-			System.out.println("\n\tO Buffer está Vazio no método lista_declaracoes_variaveis."
-		    + "\n\tEstava esperando :");
-			//return 4; // Também indica ERRO após Buffer Vazio.
 		}else{
-		   System.out.println("\n\tEstava esperando :");
+		   throw new SintaticoException(":", buffer.get(0).getToken());
 		}
-		return 4;   // ERRO .
-		*/
+		
 	}
 	
 	/************************************************************************************************************/
@@ -507,9 +391,11 @@ public class ASintatico{
 		       buffer.remove(0);
 		       op = verificacao(";", true);
 		       if(op == 1){
-		    	  //   OK >>   Recebeu program id;
+		    	  //   OK   >>   Recebeu program id;
 		    	  buffer.remove(0);
-		    	  op = declaracoes_variaveis();
+		    	  if(declaracoes_variaveis() == 2)
+		    		return; // Buffer Vazio.
+		    	  
 		       }else if(op == 2)
 		    	 throw new SintaticoException(";", "buffer vazio");
 		       throw new SintaticoException(";", buffer.get(0).getToken());
