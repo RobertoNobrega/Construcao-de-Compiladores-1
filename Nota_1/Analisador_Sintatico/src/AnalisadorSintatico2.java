@@ -27,6 +27,7 @@ public class AnalisadorSintatico2 {
 	      arquivo_leitura.readLine();
 	      preencherBuffer();
 	      checarProgram(buffer);
+	      checarComandoComp(buffer);
 	   }catch(FileNotFoundException e){
 		  System.out.println("\n\t\tErro 1 >> " + e);
 	   }catch(IOException e) {
@@ -127,10 +128,16 @@ public class AnalisadorSintatico2 {
 			System.out.println("Identificador ok!");
 			//armazeneTokenBuffer();
 	}
-	public void checarDeclaracaoSubprogramas(Token token) {//certo?
-		checarDeclaracaoSubprograma(token); //tem o primeiro procedure obrigatorio
-		if( !(token.getToken()).contentEquals(";") ) throw new SintaticoException(";", token);
-			checarDeclaracaoSubprogramas(token);
+	public void checarDeclaracaoSubprogramas(ArrayList<Token> buffer) {//certo?
+		if( (buffer.get(0)).getToken().contentEquals("procedure") ) {
+			buffer.remove(0);
+			checarDeclaracaoSubprograma(buffer.get(0)); //tem o primeiro procedure obrigatorio
+			if( !((buffer.get(0)).getToken()).contentEquals(";") ) throw new SintaticoException(";", token);
+				checarDeclaracaoSubprogramas(buffer);
+		}else {
+			//continue
+		}
+		
 	}
 	public void checarDeclaracaoSubprograma(Token token) {
 		if( !(token.getToken()).contentEquals("procedure") ) throw new SintaticoException("procedure", token);//tirar excecao,se nao for procedure, será vazio
@@ -140,9 +147,28 @@ public class AnalisadorSintatico2 {
 				//checarDeclaracaoVar(token);
 				//
 	}
-	private void checarArgumentos(Token token) {
+	public void checarArgumentos(Token token) {
 		if( !(token.getToken()).contentEquals("(") ) throw new SintaticoException("(", token);
 		//
+	}
+	public void checharListaParametros() {
+		checarListaID(buffer);
+		//
+	}
+	public void checarComandoComp(ArrayList<Token> buffer) {
+		if( !((buffer.get(0)).getToken()).contentEquals("begin") ) throw new SintaticoException("begin", token);
+			buffer.remove(0);
+			checarComandosOpc(buffer);
+	}
+
+	public void checarComandosOpc(ArrayList<Token> buffer2) {
+		checarListaComandos();
+		
+	}
+
+	private void checarListaComandos() {
+		// TODO Auto-generated method stub
+		
 	}
 
 	
