@@ -27,7 +27,6 @@ public class AnalisadorSintatico2 {
 	      arquivo_leitura.readLine();
 	      preencherBuffer();
 	      checarProgram(buffer);
-	      checarComandoComp(buffer);
 	   }catch(FileNotFoundException e){
 		  System.out.println("\n\t\tErro 1 >> " + e);
 	   }catch(IOException e) {
@@ -74,6 +73,7 @@ public class AnalisadorSintatico2 {
 			checarDeclaracaoVar(buffer);
 				//checarDecSubprograma()
 				//checarComandoComp()
+		    checarComandoComp(buffer);
 			if( ((buffer.get(0)).getToken()).contentEquals("begin") ) {
 				System.out.println("Fim primeira parte");
 			}
@@ -158,6 +158,7 @@ public class AnalisadorSintatico2 {
 	public void checarComandoComp(ArrayList<Token> buffer) {
 		if( !((buffer.get(0)).getToken()).contentEquals("begin") ) throw new SintaticoException("begin", token);
 			buffer.remove(0);
+			System.out.println("ultimo token: " + (buffer.get(0).getToken()) );
 			checarComandosOpc(buffer);
 	}
 
